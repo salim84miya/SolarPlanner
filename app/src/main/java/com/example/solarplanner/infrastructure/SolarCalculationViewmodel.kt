@@ -1,4 +1,4 @@
-package com.example.solarplanner
+package com.example.solarplanner.infrastructure
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +15,12 @@ class SolarCalculationViewmodel: ViewModel() {
 
     val energyInput: StateFlow<String> = _energyInput.asStateFlow()
 
+    private var _areaRequired = MutableStateFlow(1)
+    val areaRequired: StateFlow<Int> = _areaRequired.asStateFlow()
+
+    private var _showData = MutableStateFlow(false)
+    val showData: StateFlow<Boolean> = _showData.asStateFlow()
+
 
     fun stringToInt(input:String):Int{
         if(input.isNotBlank()){
@@ -27,6 +33,8 @@ class SolarCalculationViewmodel: ViewModel() {
     }
 
     fun calculatePanelRequired() {
+
+        _showData.value = true
 
         //energy required by house in a month
         val energyRequired = stringToInt(_energyInput.value).toDouble()
@@ -46,14 +54,26 @@ class SolarCalculationViewmodel: ViewModel() {
             totalPanelRequired = ceil(energyRequired / singlePanelGeneration).toInt();
         }
 
-
-
         _panelRequired.value = totalPanelRequired
     }
 
     fun onInputChange(input:String){
 
+        if(input.isBlank()){
+            _showData.value = false
+        }
+
         _energyInput.value = input
+    }
+
+    fun calculateAreaRequired(){
+
+        //single panel required 80 to 100 square feet
+        val singlePanelArea = 100;
+
+        val totalAreaRequired = singlePanelArea * _panelRequired.value;
+
+        _areaRequired.value = totalAreaRequired
     }
 
 
